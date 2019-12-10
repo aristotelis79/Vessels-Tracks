@@ -1,0 +1,245 @@
+openapi: 3.0.1
+info:
+  title: VESSEL TRACK API
+  version: v1
+servers:
+- url: /
+tags: []
+paths:
+  /api/import:
+    post:
+      tags:
+      - Import
+      summary: Import sample data (ship_positions.json) via post request
+      operationId: Import
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  description: import demo json format data to import in database
+                  format: binary
+        required: true
+      responses:
+        200:
+          description: Success
+          content: {}
+  /api/vessel:
+    get:
+      tags:
+      - Vessel
+      summary: "Search via get request. Support Responses in application/json, application/vnd.api+json,\
+        \ application/xml, text/csv\r\nEvery action logged in database table"
+      operationId: Search
+      parameters:
+      - name: mmsi
+        in: query
+        description: unique vessel identifier
+        style: form
+        explode: true
+        schema:
+          uniqueItems: false
+          type: array
+          items:
+            type: integer
+            format: int64
+      - name: minLat
+        in: query
+        description: search from latitude(between -90, 90)
+        schema:
+          type: number
+          format: double
+      - name: maxLat
+        in: query
+        description: search to latitude(between -90, 90)
+        schema:
+          type: number
+          format: double
+      - name: minLon
+        in: query
+        description: search from longitude(between -180, 180)
+        schema:
+          type: number
+          format: double
+      - name: maxLon
+        in: query
+        description: search to longitude(between -180, 180)
+        schema:
+          type: number
+          format: double
+      - name: from
+        in: query
+        description: search from timestamp
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        description: search to timestamp (Time convert it to utc)
+        schema:
+          type: string
+          format: date-time
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VesselPosition'
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/VesselPosition'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/VesselPosition'
+            text/csv:
+              schema:
+                $ref: '#/components/schemas/VesselPosition'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestObjectResult'
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/BadRequestObjectResult'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequestObjectResult'
+            text/csv:
+              schema:
+                $ref: '#/components/schemas/BadRequestObjectResult'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: string
+            application/vnd.api+json:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+            text/csv:
+              schema:
+                type: string
+        404:
+          description: Not Found
+          content: {}
+        429:
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                type: string
+            application/vnd.api+json:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+            text/csv:
+              schema:
+                type: string
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonErrorApi'
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/JsonErrorApi'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/JsonErrorApi'
+            text/csv:
+              schema:
+                $ref: '#/components/schemas/JsonErrorApi'
+components:
+  schemas:
+    VesselPosition:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        timestamp:
+          type: integer
+          description: position timestamp
+          format: int64
+        mmsi:
+          type: integer
+          description: unique vessel identifier
+          format: int64
+        status:
+          type: integer
+          description: AIS vessel status
+          format: int32
+        station_id:
+          type: integer
+          description: receiving station ID
+          format: int32
+        speed:
+          type: integer
+          description: speed in knots x 10 (i.e. 10,1 knots is 101)
+          format: int32
+        lon:
+          type: number
+          description: longitude
+          format: double
+        lat:
+          type: number
+          description: latitude
+          format: double
+        course:
+          type: integer
+          description: vessel's course over ground
+          format: int32
+        heading:
+          type: integer
+          description: vessel's true heading
+          format: int32
+        rot:
+          type: string
+          description: vessel's rate of turn
+      description: Response Object of search of vessels
+    BadRequestObjectResult:
+      type: object
+      properties:
+        value:
+          type: object
+          properties: {}
+        formatters:
+          type: array
+          items:
+            $ref: '#/components/schemas/IOutputFormatter'
+        contentTypes:
+          type: array
+          items:
+            type: string
+        declaredType:
+          type: string
+        statusCode:
+          type: integer
+          format: int32
+    IOutputFormatter:
+      type: object
+    JsonErrorApi:
+      type: object
+      properties:
+        error:
+          type: string
+        status:
+          type: integer
+          format: int32
+        traceId:
+          type: string
+          format: uuid
+          readOnly: true

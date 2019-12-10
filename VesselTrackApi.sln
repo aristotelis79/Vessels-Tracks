@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.902
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VesselTrackApi", "VesselTrackApi\VesselTrackApi.csproj", "{1FF91D04-20F7-442D-888A-45C256BAE489}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VesselTrackApiTests", "VesselTraclApiTests\VesselTrackApiTests.csproj", "{D97224B3-3571-4F9B-90BD-A8C4C25ABE29}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1FF91D04-20F7-442D-888A-45C256BAE489}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FF91D04-20F7-442D-888A-45C256BAE489}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FF91D04-20F7-442D-888A-45C256BAE489}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FF91D04-20F7-442D-888A-45C256BAE489}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D97224B3-3571-4F9B-90BD-A8C4C25ABE29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D97224B3-3571-4F9B-90BD-A8C4C25ABE29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D97224B3-3571-4F9B-90BD-A8C4C25ABE29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D97224B3-3571-4F9B-90BD-A8C4C25ABE29}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3AF503CD-F4A9-4646-8BB4-0509BE56E6D1}
+	EndGlobalSection
+EndGlobal
