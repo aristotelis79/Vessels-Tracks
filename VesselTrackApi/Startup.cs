@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using VesselTrackApi.Controllers;
 using VesselTrackApi.Data;
@@ -61,12 +62,12 @@ namespace VesselTrackApi
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
                     Title = "VESSEL TRACK API",
                 });
-                c.OperationFilter<SwaggerFileOperationFilter>();
+                //c.OperationFilter<SwaggerFileOperationFilter>();
                 c.CustomSchemaIds(d => d.DefaultSchemaIdSelector());
 
                 // XML Documentation
@@ -94,15 +95,14 @@ namespace VesselTrackApi
                     o.RespectBrowserAcceptHeader = true;
                     o.ReturnHttpNotAcceptable = true;
                     o.FormatterMappings.SetMediaTypeMappingForFormat("csv", MediaTypeHeaderValue.Parse("text/csv"));
-                    
+                    o.EnableEndpointRouting = false;
                 })
-                .AddJsonFormatters()
+                //.AddJsonOptions()
                 .AddXmlSerializerFormatters()
                 .AddFormatterMappings()
                 .AddCsvSerializerFormatters(new CsvFormatterOptions {CsvDelimiter = ","})
                 .AddApiExplorer()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>())
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             #endregion
 
