@@ -19,9 +19,8 @@ namespace VesselTrackApiTests
     public class VesselTrackApiSteps
     {
         private ILogger<VesselController> _logger;
-        private IDbContext _dbContext;
-        private IRepository<VesselPositionEntity, long> _repository;
-        private ITrackService _trackService;
+        //private IDbContext _dbContext;
+        private IRepository<VesselPositionEntity, Guid> _repository;
         private VesselController _vesselController;
 
         private ScenarioContext _scenarioContext;
@@ -30,10 +29,9 @@ namespace VesselTrackApiTests
         {
             _scenarioContext = scenarioContext;
             _logger = new Logger<VesselController>(new NLogLoggerFactory());
-            _dbContext = new VesselsTrackDbContext("Data Source=(local);Initial Catalog=VesselTrackApi;Integrated Security=True;Persist Security Info=False");
-            _repository = new EfRepository<VesselPositionEntity, long>(_dbContext);
-            _trackService =  new TrackService(_repository);
-            _vesselController = new VesselController(_logger, _trackService);
+            //_dbContext = new SqlServerDbContext("Data Source=(local);Initial Catalog=VesselTrackApi;Integrated Security=True;Persist Security Info=False");
+            //_repository = new EfRepository<VesselPositionEntity, long>(_dbContext);
+            _vesselController = new VesselController(_logger, _repository);
         }
 
 
@@ -42,8 +40,8 @@ namespace VesselTrackApiTests
         {
             var requestFields = table.Rows.FirstOrDefault();
             _scenarioContext["mmsi"] = Convert.ToInt64(requestFields["mmsi"]);
-            _scenarioContext["lat"] = Convert.ToDecimal(requestFields["lat"]);
-            _scenarioContext["lon"] = Convert.ToDecimal(requestFields["lon"]);
+            _scenarioContext["lat"] = Convert.ToDouble(requestFields["lat"]);
+            _scenarioContext["lon"] = Convert.ToDouble(requestFields["lon"]);
             _scenarioContext["timestamp"] = Convert.ToDateTime(requestFields["timestamp"]);
         }
 
@@ -51,13 +49,13 @@ namespace VesselTrackApiTests
         public void WhenICallTheEndpoint()
         { 
             var mmsi = new long[] {(long) _scenarioContext["mmsi"]};
-            var minlat = (decimal?) _scenarioContext["lat"];
-            var maxLat = (decimal?) _scenarioContext["lat"];
-            var minLon = (decimal?) _scenarioContext["lon"];
-            var maxLon = (decimal?) _scenarioContext["lon"];
+            var minlat = (double?) _scenarioContext["lat"];
+            var maxLat = (double?) _scenarioContext["lat"];
+            var minLon = (double?) _scenarioContext["lon"];
+            var maxLon = (double?) _scenarioContext["lon"];
             var from = (DateTime?) _scenarioContext["timestamp"];
             var to = (DateTime?) _scenarioContext["timestamp"];
-            _scenarioContext["results"] = _vesselController.Search(mmsi,minlat,maxLat,minLon,maxLon,from,to).Result;
+            _scenarioContext["results"] = _vesselController.Search(mmsi,from,to,minlat,maxLat,minLon,maxLon).Result;
         }
 
         [Then(@"the result should")]
@@ -70,8 +68,8 @@ namespace VesselTrackApiTests
             Assert.That(Convert.ToInt32(exceptResult["status"]), Is.EqualTo(result.Status)); 
             Assert.That(Convert.ToInt32(exceptResult["stationId"]), Is.EqualTo(result.StationId)); 
             Assert.That(Convert.ToInt32(exceptResult["speed"]), Is.EqualTo(result.Speed)); 
-            Assert.That(Convert.ToDecimal(exceptResult["lon"]), Is.EqualTo(result.Lon)); 
-            Assert.That(Convert.ToDecimal(exceptResult["lat"]), Is.EqualTo(result.Lat)); 
+            Assert.That(Convert.ToDecimal(exceptResult["lon"]), Is.EqualTo(result.Longitude)); 
+            Assert.That(Convert.ToDecimal(exceptResult["lat"]), Is.EqualTo(result.Latitude)); 
             Assert.That(Convert.ToInt32(exceptResult["course"]), Is.EqualTo(result.Course)); 
             Assert.That(Convert.ToInt32(exceptResult["heading"]), Is.EqualTo(result.Heading)); 
             Assert.That(result.Rot, Is.Null); 

@@ -12,20 +12,21 @@ namespace VesselTrackApi.Validation
                 .MustHasOne()
                 .When(x => x.Mmsi != null);
 
-            RuleFor(x => x.Lat)
+            RuleFor(x => x.Latitude)
                 .MustHaveLatValidValue<VesselPositionSearch,Searchable<Between<decimal?>>>()
                 .MustHasOneInterval()
-                .When(x => x.Lat != null);
+                .When(x => x.Latitude != null);
 
-            RuleFor(x => x.Lon)
+            RuleFor(x => x.Longitude)
                 .MustHaveLonValidValue<VesselPositionSearch,Searchable<Between<decimal?>>>()
                 .MustHasOneInterval()
-                .When(x => x.Lon != null);
+                .When(x => x.Longitude != null);
 
             RuleFor(x => x.Timestamp)
                 .MustHasOneInterval()
-                .When(x => x.Timestamp != null);
+                .When(x => x.Timestamp != null)
+                .MustDateTimeAfterGreaterBefore<VesselPositionSearch,Searchable<Between<DateTime?>>>()
+                .When(x=>x.Timestamp?.Value.From != null && x.Timestamp.Value.To != null);
         }
-
     }
 }

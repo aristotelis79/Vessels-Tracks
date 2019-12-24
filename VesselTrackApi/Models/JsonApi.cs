@@ -2,34 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace VesselTrackApi.Models
 {
-    public interface IJsonApi
+    public interface IJsonApi<T> where T : struct
     {
-        long Id { get; set; }
+        T Id { get; set; }
     }
 
     [Serializable]
-    public class JsonApi
+    public class JsonApi<T> where T : struct
     {
-        public JsonApi(IJsonApi entity)
+        public JsonApi(IJsonApi<T> entity)
         {
             Id = entity.Id;
             Type = (entity.GetType().Name).ToLower() + "s";
             Data = entity;
         }
 
-        [JsonProperty(PropertyName = "id")]
-        public long Id { get; set; }
-        [JsonProperty(PropertyName = "type")]
+        [DataMember(Name = "id")]
+        public T Id { get; set; }
+        [DataMember(Name = "type")]
         public string Type { get; set; }
-        [JsonProperty(PropertyName = "data")]
-        public IJsonApi Data { get; set; }
+        [DataMember(Name = "data")]
+        public IJsonApi<T> Data { get; set; }
     }
 
     [Serializable]
@@ -49,12 +49,12 @@ namespace VesselTrackApi.Models
             TraceId = Guid.NewGuid();
         }
 
-        [JsonProperty(PropertyName = "error")]
+        [DataMember(Name = "error")]
         public string Error { get; set; }
-        [JsonProperty(PropertyName = "status")]
+        [DataMember(Name = "status")]
         public int Status { get; set; }
 
-        [JsonProperty(PropertyName = "traceId")]
+        [DataMember(Name = "traceId")]
         public Guid TraceId { get; }
 
         public static ObjectResult Error500 => new ObjectResult(new JsonErrorApi("Internal server Error", StatusCodes.Status500InternalServerError))

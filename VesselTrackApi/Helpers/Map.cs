@@ -17,8 +17,8 @@ namespace VesselTrackApi.Helpers
                 Status = entity.Status,
                 Speed = entity.Speed,
                 Course = entity.Course,
-                Lat = entity.Lat,
-                Lon = entity.Lon,
+                Latitude = entity.GeoPoint.Latitude,
+                Longitude = entity.GeoPoint.Longitude,
                 Heading = entity.Heading,
                 Timestamp = entity.Timestamp
 
@@ -28,5 +28,24 @@ namespace VesselTrackApi.Helpers
 
         public static List<VesselPosition> ToVesselPositions(this IEnumerable<VesselPositionEntity> entities) => entities.Select(e => e.ToVesselPosition()).ToList();
         
+
+        public static VesselPositionEntity ToVesselPositionEntity(this VesselPosition model)
+        {
+            return new VesselPositionEntity
+            {
+                Id = model.Id,
+                Mmsi = model.Mmsi,
+                StationId = model.StationId,
+                Status = model.Status,
+                Speed = model.Speed,
+                Course = model.Course,
+                Heading = model.Heading,
+                Timestamp = model.Timestamp,
+                GeoPoint = new GeoPoint(model.Latitude, model.Longitude)
+            };
+        }
+
+        public static List<VesselPositionEntity> ToVesselPositionEntities(this IEnumerable<VesselPosition> models) => models.Select(e => e.ToVesselPositionEntity()).ToList();
+
     }
 }

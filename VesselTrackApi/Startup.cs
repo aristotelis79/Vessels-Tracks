@@ -2,24 +2,20 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using AspNetCoreRateLimit;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Swagger;
+using Utf8Json.Resolvers;
+using VesselTrackApi.ConfigureServices;
 using VesselTrackApi.Controllers;
-using VesselTrackApi.Data;
-using VesselTrackApi.Data.Entities;
-using VesselTrackApi.Repositories;
 using VesselTrackApi.Services;
 using VesselTrackApi.SwaggerHelpers;
 using WebApiContrib.Core.Formatter.Csv;
@@ -40,21 +36,25 @@ namespace VesselTrackApi
         {
             #region DI
 
-            services.AddTransient<IDbContext, VesselsTrackDbContext>();
-            services.AddTransient<IRepository<VesselPositionEntity,long>, EfRepository<VesselPositionEntity,long>>();
             services.AddTransient<IImportService, ImportService>();
-            services.AddTransient<ITrackService, TrackService>();
             services.AddTransient<DateActionFilter>();
 
             #endregion
 
-            #region Database
+            #region SQLServer
+            //services.AddTransient<IDbContext, SqlServerDbContext>();
+            //services.AddTransient<IRepository<VesselPositionEntity,long>, ElasticRepository<VesselPositionEntity,long>>();
+            //services.AddDbContext<SqlServerDbContext>(o =>
+            //{
+            //    o.UseLoggerFactory(new LoggerFactory(new[] { new DebugLoggerProvider() }))
+            //        .UseSqlServer(Configuration["ConnectionString"]);
+            //}, ServiceLifetime.Transient);
 
-            services.AddDbContext<VesselsTrackDbContext>(o =>
-            {
-                o.UseLoggerFactory(new LoggerFactory(new[] {new DebugLoggerProvider()}))
-                    .UseSqlServer(Configuration["ConnectionString"]);
-            }, ServiceLifetime.Transient);
+            #endregion
+
+            #region Elastic
+
+            services.AddElasticDbContext(Configuration);
 
             #endregion
 
@@ -96,8 +96,14 @@ namespace VesselTrackApi
                     o.ReturnHttpNotAcceptable = true;
                     o.FormatterMappings.SetMediaTypeMappingForFormat("csv", MediaTypeHeaderValue.Parse("text/csv"));
                     o.EnableEndpointRouting = false;
+
                 })
-                //.AddJsonOptions()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.WriteIndented = true;
+                })
                 .AddXmlSerializerFormatters()
                 .AddFormatterMappings()
                 .AddCsvSerializerFormatters(new CsvFormatterOptions {CsvDelimiter = ","})
@@ -146,12 +152,14 @@ namespace VesselTrackApi
                 c.RoutePrefix = string.Empty;
             });
 
-            var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
-            using (var serviceScope = serviceScopeFactory.CreateScope())
-            {
-                var dbContext = serviceScope.ServiceProvider.GetService<VesselsTrackDbContext>();
-                dbContext.Database.EnsureCreated();
-            }
+            #region SQLServer
+            //var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+            //using (var serviceScope = serviceScopeFactory.CreateScope())
+            //{
+            //    var dbContext = serviceScope.ServiceProvider.GetService<SqlServerDbContext>();
+            //    dbContext.Database.EnsureCreated();
+            //}
+            #endregion
         }
     }
 }

@@ -8,10 +8,17 @@ namespace VesselTrackApi.Models
         public T From { get; set; }
         public T To { get; set; }
 
-        public Between(T @from, T @to)
+        private Between(T @from, T @to)
         {
             From = @from;
             To = @to;
+        }
+
+        public static Between<T> Create(T @from, T @to)
+        {
+            return (@from == null && @to == null) 
+                ? null 
+                : new Between<T>(@from ,@to);
         }
     }
 }

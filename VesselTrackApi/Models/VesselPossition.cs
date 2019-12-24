@@ -1,5 +1,6 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
+using VesselTrackApi.Helpers;
 
 namespace VesselTrackApi.Models
 {
@@ -7,59 +8,69 @@ namespace VesselTrackApi.Models
     /// Response Object of search of vessels
     /// </summary>
     [Serializable]
-    public class VesselPosition : IJsonApi
+    public class VesselPosition : IJsonApi<Guid>
     {
-        [JsonProperty(PropertyName = "id")]
-        public long Id { get; set; }
+
+        public VesselPosition()
+        {
+            if (Id == Guid.Empty)
+                Id = GuidGenerator.GenerateTimeBasedGuid();   
+        }
+
+        /// <summary>
+        /// Unique Identity of vessel Position
+        /// </summary>
+        [DataMember(Name = "id")]
+        public Guid Id { get; set; }
         /// <summary>
         /// position timestamp
         /// </summary>
-        [JsonProperty(PropertyName = "timestamp")]
+        [DataMember(Name = "timestamp")]
         public long Timestamp { get; set; }
         /// <summary>
         /// unique vessel identifier 
         /// </summary>
-        [JsonProperty(PropertyName = "mmsi")]
+        [DataMember(Name = "mmsi")]
         public long Mmsi { get; set; }
         /// <summary>
         /// AIS vessel status
         /// </summary>
-        [JsonProperty(PropertyName = "status")]
+        [DataMember(Name = "status")]
         public int Status { get; set; }
         /// <summary>
         /// receiving station ID
         /// </summary>
-        [JsonProperty(PropertyName = "station_id")]
+        [DataMember(Name = "station_id")]
         public int StationId { get; set; }
         /// <summary>
         /// speed in knots x 10 (i.e. 10,1 knots is 101)
         /// </summary>
-        [JsonProperty(PropertyName = "speed")]
+        [DataMember(Name = "speed")]
         public int Speed { get; set; }
         /// <summary>
         /// longitude
         /// </summary>
-        [JsonProperty(PropertyName = "lon")]
-        public decimal Lon { get; set; }
+        [DataMember(Name = "lon")]
+        public double Longitude { get; set; }
         /// <summary>
         /// latitude
         /// </summary>
-        [JsonProperty(PropertyName = "lat")]
-        public decimal Lat { get; set; }
+        [DataMember(Name = "lat")]
+        public double Latitude { get; set; }
         /// <summary>
         /// vessel's course over ground
         /// </summary>
-        [JsonProperty(PropertyName = "course")]
+        [DataMember(Name = "course")]
         public int Course { get; set; }
         /// <summary>
         /// vessel's true heading
         /// </summary>
-        [JsonProperty(PropertyName = "heading")]
+        [DataMember(Name = "heading")]
         public int Heading { get; set; }
         /// <summary>
         /// vessel's rate of turn
         /// </summary>
-        [JsonProperty(PropertyName = "rot")]
+        [DataMember(Name = "rot")]
         public string Rot { get; set; }
 
     }

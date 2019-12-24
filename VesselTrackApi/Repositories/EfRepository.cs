@@ -5,12 +5,12 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using VesselTrackApi.Data;
 using VesselTrackApi.Data.Entities;
+using VesselTrackApi.Data.EntityFramework;
 
 namespace VesselTrackApi.Repositories
 {
-    public partial class EfRepository<TEntity,T> : IRepository<TEntity,T> where TEntity : class,
+    public partial class EfRepository<TEntity,T> : IRelationalRepository<TEntity,T> where TEntity : class,
                                                     IEntity<T> where T : struct 
     {
         private readonly IDbContext _context;
@@ -37,6 +37,29 @@ namespace VesselTrackApi.Repositories
             {
                 throw new Exception(await GetFullErrorTextAndRollbackEntityChanges(exception, token).ConfigureAwait(false), exception);
             }
+        }
+
+        public async Task<IEnumerable<TEntity>> SearchAsync(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, string includeProperties = "",
+            CancellationToken token = default(CancellationToken))
+        {
+            var query = TableNoTracking;
+
+            if (filter != null)
+            {
+                query =  query.Where(filter);
+            }
+
+            if (includeProperties != null)
+            {
+                query = includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries)
+                    .Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
+            }
+            
+
+            return orderBy != null 
+                ? await orderBy(query).ToListAsync(cancellationToken: token).ConfigureAwait(false) 
+                : await query.ToListAsync(cancellationToken: token).ConfigureAwait(false) ;
+
         }
 
         public virtual IQueryable<TEntity> Table => Entities;

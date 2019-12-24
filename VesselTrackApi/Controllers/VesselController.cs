@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using VesselTrackApi.Data.Entities;
 using VesselTrackApi.Helpers;
 using VesselTrackApi.Models;
-using VesselTrackApi.Services;
+using VesselTrackApi.Repositories;
 using VesselTrackApi.Validation;
 
 namespace VesselTrackApi.Controllers
@@ -21,12 +21,12 @@ namespace VesselTrackApi.Controllers
     public class VesselController : BaseController
     {
         private readonly ILogger<VesselController> _logger;
-        private readonly ITrackService _trackService;
+        private readonly IRepository<VesselPositionEntity,Guid> _repository;
 
-        public VesselController(ILogger<VesselController> logger, ITrackService trackService)
+        public VesselController(ILogger<VesselController> logger, IRepository<VesselPositionEntity, Guid> repository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _trackService = trackService ?? throw new ArgumentNullException(nameof(trackService));
+            _repository = repository?? throw new ArgumentNullException(nameof(repository));
         }
 
         /// <summary>
@@ -56,8 +56,8 @@ namespace VesselTrackApi.Controllers
                             ContentType.APPLICATION_VND_API_JSON,
                             ContentType.APPLICATION_XML,
                             ContentType.TEXT_CSV)]
-        public async Task<IActionResult> Search([FromQuery] long[] mmsi, decimal? minLat, decimal? maxLat,
-                                            decimal? minLon, decimal? maxLon, DateTime? from, DateTime? to)
+        public async Task<IActionResult> Search([FromQuery] long[] mmsi, DateTime? from, DateTime? to,
+                                                        double? minLat, double? maxLat, double? minLon, double? maxLon)
         {
             try
             {
@@ -67,12 +67,10 @@ namespace VesselTrackApi.Controllers
                 if (!validation.IsValid)
                     return JsonErrorApi.Error400(validation.Errors);
 
-                var exp = ExpressionBuilder.BetweenDate<VesselPositionEntity>(vps.Timestamp)
-                    .And(ExpressionBuilder.BetweenLat<VesselPositionEntity>(vps.Lat))
-                    .And(ExpressionBuilder.BetweenLon<VesselPositionEntity>(vps.Lon))
-                    .And(ExpressionBuilder.In<VesselPositionEntity>(vps.Mmsi));
+                //var exp = vps.SearchExpression<VesselPositionEntity>();
+                var query = vps.SearchRequest<VesselPositionEntity>();
 
-                var results = (await _trackService.SearchAsync(exp).ConfigureAwait(false))
+                var results = (await _repository.SearchAsync(query).ConfigureAwait(false))
                                     .ToList();
 
                 return results.Any() ? Ok(results.ToVesselPositions())

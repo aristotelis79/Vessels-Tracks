@@ -1,43 +1,37 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
+using Nest;
+using VesselTrackApi.Helpers;
 
 namespace VesselTrackApi.Data.Entities
 {
     [Serializable]
-    public class VesselPositionEntity : IEntity<long>, ITimeEntity, IPosition, IVesselIdentity
+    public class VesselPositionEntity : IEntity<Guid>, ITimeEntity, IVesselIdentity
     {
-        [Column("id")]
-        public long Id { get; set; }
+        public VesselPositionEntity()
+        {
+            if (Id == Guid.Empty)
+                Id = GuidGenerator.GenerateTimeBasedGuid();
+        }
 
-        [Column("timestamp")]
+        public Guid Id { get; set; }
+
         public long Timestamp { get; set; }
 
-        [Column("mmsi")]
         public long Mmsi { get; set; }
 
-        [Column("status")]
         public int Status { get; set; }
 
-        [Column("station_id")]
         public int StationId { get; set; }
 
-        [Column("speed")]
         public int Speed { get; set; }
 
-        [Column("lon")]
-        public decimal Lon { get; set; }
+        public virtual GeoLocation GeoPoint { get; set; }
 
-        [Column("lat")]
-        public decimal Lat { get; set; }
-
-        [Column("course")]
         public int Course { get; set; }
 
-        [Column("heading")]
         public int Heading { get; set; }
 
-        [Column("rot")]
         public string Rot { get; set; }
 
     }

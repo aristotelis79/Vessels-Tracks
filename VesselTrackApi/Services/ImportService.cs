@@ -4,9 +4,10 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using VesselTrackApi.Data;
+using Utf8Json;
 using VesselTrackApi.Data.Entities;
+using VesselTrackApi.Helpers;
+using VesselTrackApi.Models;
 using VesselTrackApi.Repositories;
 
 namespace VesselTrackApi.Services
@@ -15,10 +16,10 @@ namespace VesselTrackApi.Services
     {
         private ILogger<ImportService> _logger;
 
-        private readonly IRepository<VesselPositionEntity, long> _repository;
+        private readonly IRepository<VesselPositionEntity, Guid> _repository;
 
         public ImportService(ILogger<ImportService> logger,
-                                IRepository<VesselPositionEntity,long> repository)
+            IRepository<VesselPositionEntity,Guid> repository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _repository = repository?? throw new ArgumentNullException(nameof(repository));
@@ -32,9 +33,9 @@ namespace VesselTrackApi.Services
             {
                 var data = await r.ReadToEndAsync().ConfigureAwait(false);
 
-                var vesselsPos = JsonConvert.DeserializeObject<List<VesselPositionEntity>>(data);
+                var vesselsPos = JsonSerializer.Deserialize<List<VesselPosition>>(data);
                 
-                await _repository.InsertAsync(vesselsPos,token).ConfigureAwait(false);
+                await _repository.InsertAsync(vesselsPos.ToVesselPositionEntities(),token).ConfigureAwait(false);
                 
                 return true;
             }

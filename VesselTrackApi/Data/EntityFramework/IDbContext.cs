@@ -2,9 +2,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VesselTrackApi.Data.Entities;
-using VesselTrackApi.Repositories;
 
-namespace VesselTrackApi.Data
+namespace VesselTrackApi.Data.EntityFramework
 {
     public interface IDbContext
     {

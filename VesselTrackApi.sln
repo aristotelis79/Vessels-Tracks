@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.902
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VesselTrackApi", "VesselTrackApi\VesselTrackApi.csproj", "{1FF91D04-20F7-442D-888A-45C256BAE489}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VesselTrackApiTests", "VesselTraclApiTests\VesselTrackApiTests.csproj", "{D97224B3-3571-4F9B-90BD-A8C4C25ABE29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VesselTrackApiTests", "VesselTraclApiTests\VesselTrackApiTests.csproj", "{D97224B3-3571-4F9B-90BD-A8C4C25ABE29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

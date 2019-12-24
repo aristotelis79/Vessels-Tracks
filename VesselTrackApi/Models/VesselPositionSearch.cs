@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using VesselTrackApi.Data.Entities;
 
 namespace VesselTrackApi.Models
 {
@@ -10,28 +10,38 @@ namespace VesselTrackApi.Models
     [Serializable]
     public class VesselPositionSearch
     {
-        public VesselPositionSearch(long[] mmsi, decimal? minLat, decimal? maxLat, decimal? minLon, decimal? maxLon, DateTime? from, DateTime? to)
+        public VesselPositionSearch(long[] mmsi, double? minLat, double? maxLat, double? minLon, double? maxLon, DateTime? from, DateTime? to)
         {
-            Mmsi = mmsi != null && mmsi.Any() ?  new Searchable<IList<long>>(mmsi.ToList()) : null;
-            Lat = minLat != null || maxLat != null  ? new Searchable<Between<decimal?>>(new Between<decimal?>(minLat,maxLat)) : null;
-            Lon = minLon != null || maxLon != null  ? new Searchable<Between<decimal?>>(new Between<decimal?>(minLon,maxLon)) : null;
-            Timestamp =  from != null || to != null  ? new Searchable<Between<DateTime?>>(new Between<DateTime?>(from, to)) : null;
+            Mmsi = Searchable<IEnumerable<long>>.Create(mmsi);
+            Timestamp = Searchable<Between<DateTime?>>.Create(Between<DateTime?>.Create(from, to));
+            Latitude = Searchable<Between<double?>>.Create(Between<double?>.Create(minLat,maxLat));
+            Longitude = Searchable<Between<double?>>.Create(Between<double?>.Create(minLon,maxLon));
+            GeoPoint = Searchable<Between<GeoPoint>>.Create(Between<GeoPoint>.
+                Create(new GeoPoint(minLat ?? Coord.MinLat,maxLon ?? Coord.MaxLon),
+                    new GeoPoint(maxLat ?? Coord.MaxLat,minLon?? Coord.MinLon)));
         }
+
 
         /// <summary>
         /// Search in list of unique vessel identifier
         /// </summary>
-        public Searchable<IList<long>> Mmsi { get;  }
+        public Searchable<IEnumerable<long>> Mmsi { get; }
 
         /// <summary>
         /// From and To for search in longitude(between -180, 180)
         /// </summary>
-        public Searchable<Between<decimal?>> Lon { get;  }
+        public Searchable<Between<double?>> Longitude { get;  }
 
         /// <summary>
         /// From and To for search in latitude(between -90, 90)
         /// </summary>
-        public Searchable<Between<decimal?>> Lat { get;  }
+        public Searchable<Between<double?>> Latitude { get;  }
+
+
+        /// <summary>
+        /// Search in area of GeoPoint
+        /// </summary>
+        public Searchable<Between<GeoPoint>> GeoPoint { get;  }
 
         /// <summary>
         /// From and To for search in time (Time convert it to utc)
